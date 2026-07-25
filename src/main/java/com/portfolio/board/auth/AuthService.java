@@ -27,10 +27,10 @@ public class AuthService {
     private final StringRedisTemplate redisTemplate;
 
     public AuthService(MemberMapper memberMapper,
-                        LoginHistoryMapper loginHistoryMapper,
-                        PasswordEncoder passwordEncoder,
-                        JwtTokenProvider jwtTokenProvider,
-                        StringRedisTemplate redisTemplate) {
+                       LoginHistoryMapper loginHistoryMapper,
+                       PasswordEncoder passwordEncoder,
+                       JwtTokenProvider jwtTokenProvider,
+                       StringRedisTemplate redisTemplate) {
         this.memberMapper = memberMapper;
         this.loginHistoryMapper = loginHistoryMapper;
         this.passwordEncoder = passwordEncoder;
@@ -51,7 +51,7 @@ public class AuthService {
         memberMapper.insert(member);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = {IllegalArgumentException.class, AccountLockedException.class})
     public LoginResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         String username = request.getUsername();
         String ip = extractIp(httpRequest);

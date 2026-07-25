@@ -10,6 +10,10 @@ public class MemberVO {
     private String nickname;
     private String role;       // ROLE_USER / ROLE_ADMIN
     private boolean enabled;
+    private String profileImage;
+    private boolean withdrawn;
+    private String provider;
+    private String providerId;
     private LocalDateTime createdAt;
 
     public MemberVO() {
@@ -61,6 +65,38 @@ public class MemberVO {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public boolean isWithdrawn() {
+        return withdrawn;
+    }
+
+    public void setWithdrawn(boolean withdrawn) {
+        this.withdrawn = withdrawn;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
     }
 
     public LocalDateTime getCreatedAt() {

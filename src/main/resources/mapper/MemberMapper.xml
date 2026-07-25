@@ -36,8 +36,13 @@
 
     <update id="updateProfile">
         UPDATE member
-        SET nickname = #{nickname},
-            profile_image = #{profileImage}
+        SET nickname = #{nickname}
+        WHERE username = #{username}
+    </update>
+
+    <update id="updateProfileImage">
+        UPDATE member
+        SET profile_image = #{profileImage}
         WHERE username = #{username}
     </update>
 

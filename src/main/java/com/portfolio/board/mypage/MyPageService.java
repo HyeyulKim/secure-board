@@ -5,16 +5,20 @@ import com.portfolio.board.vo.MemberVO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class MyPageService {
 
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
+    private final FileStorageService fileStorageService;
 
-    public MyPageService(MemberMapper memberMapper, PasswordEncoder passwordEncoder) {
+    public MyPageService(MemberMapper memberMapper, PasswordEncoder passwordEncoder,
+                          FileStorageService fileStorageService) {
         this.memberMapper = memberMapper;
         this.passwordEncoder = passwordEncoder;
+        this.fileStorageService = fileStorageService;
     }
 
     public ProfileResponse getProfile(String username) {
@@ -25,7 +29,7 @@ public class MyPageService {
     @Transactional
     public void updateProfile(String username, ProfileUpdateRequest request) {
         findActiveMember(username); // 존재 확인
-        memberMapper.updateProfile(username, request.getNickname(), null);
+        memberMapper.updateProfile(username, request.getNickname());
     }
 
     @Transactional
@@ -53,6 +57,14 @@ public class MyPageService {
         }
 
         memberMapper.withdraw(username);
+    }
+
+    @Transactional
+    public String uploadProfileImage(String username, MultipartFile file) {
+        findActiveMember(username); // 존재 확인
+        String imageUrl = fileStorageService.store(file);
+        memberMapper.updateProfileImage(username, imageUrl);
+        return imageUrl;
     }
 
     private MemberVO findActiveMember(String username) {

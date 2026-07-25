@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll() // 프로필 이미지는 누구나 볼 수 있어야 함
                         .requestMatchers("/api/boards/**").permitAll() // 게시판 조회는 우선 공개, 추후 쓰기 작업만 인증 요구로 조정
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

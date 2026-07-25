@@ -119,3 +119,62 @@ public LoginResponse login(LoginRequest request, HttpServletRequest httpRequest)
   카운터 등)에는 반드시 `noRollbackFor`/`rollbackFor`로 세밀하게 제어해야 함
 - API 응답이 정상적으로 오는 것과 DB에 실제로 반영되는 것은 별개 문제일 수 있다는 것을
   직접 겪음 — 트랜잭션 경계 안에서 무슨 일이 일어나는지 항상 의식해야 함
+
+---
+
+## 2026-07-25: 마이페이지에서 닉네임 변경 시 상단 네비게이션에 즉시 반영 안 됨 (프론트)
+
+### 증상
+
+마이페이지에서 닉네임을 변경하면 API 호출은 성공하고 DB에도 정상 반영되지만,
+화면 상단 네비게이션 바에 표시되는 닉네임은 바뀌지 않고 로그인했을 때의 값 그대로 남아있음.
+새로고침(F5)하면 정상적으로 바뀐 닉네임이 보임.
+
+### 원인 분석
+
+- 닉네임을 표시하는 상단 네비게이션은 `AuthContext`의 전역 상태(`nickname`)를 참조
+- 이 전역 상태는 **로그인 시점에 한 번 저장된 이후로 갱신되는 경로가 없었음**
+- 마이페이지의 닉네임 변경 로직은 `myPageApi.updateProfile()`을 호출해서 백엔드 DB만
+  업데이트했을 뿐, `AuthContext`에는 전혀 알리지 않는 구조였음
+- 즉 "닉네임 데이터"가 서버 DB, `AuthContext`(메모리+localStorage), 마이페이지 자체
+  로컬 상태(`useState`) 이렇게 세 군데에 따로 존재했는데, 그중 한 곳(DB)만 갱신되고
+  나머지 두 곳은 그대로 있었던 것이 원인. 새로고침하면 `AuthContext`가 localStorage
+  값을 다시 읽어오긴 하지만, 그 localStorage 값 자체도 로그인 시점 값이라 여전히
+  구버전이었음 — 실제로는 새로고침 후 마이페이지가 서버에서 최신 프로필을 다시
+  조회(`getProfile`)해서 화면에 보여준 것일 뿐, `AuthContext`는 여전히 갱신되지 않은 상태
+
+### 해결
+
+`AuthContext`에 `updateNickname()` 함수를 추가해서, 마이페이지의 닉네임 변경 API가
+성공하면 그 즉시 `AuthContext`도 함께 갱신하도록 연결:
+
+```tsx
+// AuthContext.tsx
+const updateNickname = (newNickname: string) => {
+  localStorage.setItem("nickname", newNickname);
+  setNickname(newNickname);
+};
+```
+
+```tsx
+// MyPage.tsx
+await myPageApi.updateProfile(nickname);
+updateNickname(nickname); // AuthContext도 함께 갱신
+```
+
+### 재발 방지
+
+- 같은 데이터(닉네임 등)를 여러 컴포넌트/컨텍스트가 각자의 상태로 들고 있을 때는,
+  그 데이터를 변경하는 모든 지점에서 "이 상태를 참조하는 다른 곳도 있는지"를
+  먼저 점검하는 것을 체크리스트화
+- 전역 상태(Context)와 로컬 상태(컴포넌트 useState)가 같은 값을 다르게 들고 있는
+  구조는 애초에 동기화 누락 버그가 나기 쉬우므로, 가능하면 출처를 하나로 모으거나
+  (예: 전역 상태만 두고 로컬에서는 그걸 그대로 사용), 여러 곳에 나눠 둘 수밖에
+  없다면 변경 지점에서 반드시 모든 사본을 함께 갱신
+
+### 배운 점
+
+- 백엔드 API가 성공해도 프론트 화면에 반영이 안 되는 문제는, API 문제가 아니라
+  프론트 상태 관리 구조(전역 상태 vs 로컬 상태의 동기화) 문제일 수 있다는 것을 확인
+- "새로고침하면 되는데요?"는 임시방편일 뿐, 근본 원인(상태가 여러 군데 흩어져 있는 것)을
+  찾아 고치는 게 중요하다는 걸 실감함

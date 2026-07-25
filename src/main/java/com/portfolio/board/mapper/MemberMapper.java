@@ -13,9 +13,9 @@ public interface MemberMapper {
 
     int updateEnabled(@Param("username") String username, @Param("enabled") boolean enabled);
 
-    int updateProfile(@Param("username") String username,
-                       @Param("nickname") String nickname,
-                       @Param("profileImage") String profileImage);
+    int updateProfile(@Param("username") String username, @Param("nickname") String nickname);
+
+    int updateProfileImage(@Param("username") String username, @Param("profileImage") String profileImage);
 
     int updatePassword(@Param("username") String username, @Param("password") String password);
 

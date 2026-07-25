@@ -3,6 +3,7 @@ package com.portfolio.board.mypage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -38,6 +39,13 @@ public class MyPageController {
                                                 @RequestBody PasswordChangeRequest request) {
         myPageService.changePassword(authentication.getName(), request);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/profile-image", consumes = "multipart/form-data")
+    public ResponseEntity<Map<String, String>> uploadProfileImage(Authentication authentication,
+                                                                    @RequestParam("file") MultipartFile file) {
+        String imageUrl = myPageService.uploadProfileImage(authentication.getName(), file);
+        return ResponseEntity.ok(Map.of("profileImage", imageUrl));
     }
 
     @DeleteMapping

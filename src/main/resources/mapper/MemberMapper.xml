@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.portfolio.board.mapper.MemberMapper">
+
+    <resultMap id="memberResultMap" type="com.portfolio.board.vo.MemberVO">
+        <id     property="memberNo"  column="member_no" />
+        <result property="username"  column="username" />
+        <result property="password"  column="password" />
+        <result property="nickname"  column="nickname" />
+        <result property="role"      column="role" />
+        <result property="enabled"   column="enabled" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    <select id="findByUsername" resultMap="memberResultMap">
+        SELECT member_no, username, password, nickname, role, enabled, created_at
+        FROM member
+        WHERE username = #{username}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="memberNo">
+        INSERT INTO member (username, password, nickname, role, enabled, created_at)
+        VALUES (#{username}, #{password}, #{nickname}, 'ROLE_USER', 1, NOW())
+    </insert>
+
+    <update id="updateEnabled">
+        UPDATE member
+        SET enabled = #{enabled}
+        WHERE username = #{username}
+    </update>
+
+</mapper>

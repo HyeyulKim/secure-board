@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.portfolio.board.mapper.LoginHistoryMapper">
+
+    <resultMap id="loginHistoryResultMap" type="com.portfolio.board.vo.LoginHistoryVO">
+        <id     property="historyNo"   column="history_no" />
+        <result property="username"    column="username" />
+        <result property="ipAddress"   column="ip_address" />
+        <result property="success"     column="success" />
+        <result property="attemptedAt" column="attempted_at" />
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO login_history (username, ip_address, success, attempted_at)
+        VALUES (#{username}, #{ipAddress}, #{success}, NOW())
+    </insert>
+
+    <select id="selectList" resultMap="loginHistoryResultMap">
+        SELECT history_no, username, ip_address, success, attempted_at
+        FROM login_history
+        ORDER BY attempted_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

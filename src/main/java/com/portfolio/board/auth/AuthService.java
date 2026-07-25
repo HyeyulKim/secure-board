@@ -27,10 +27,10 @@ public class AuthService {
     private final StringRedisTemplate redisTemplate;
 
     public AuthService(MemberMapper memberMapper,
-                       LoginHistoryMapper loginHistoryMapper,
-                       PasswordEncoder passwordEncoder,
-                       JwtTokenProvider jwtTokenProvider,
-                       StringRedisTemplate redisTemplate) {
+                        LoginHistoryMapper loginHistoryMapper,
+                        PasswordEncoder passwordEncoder,
+                        JwtTokenProvider jwtTokenProvider,
+                        StringRedisTemplate redisTemplate) {
         this.memberMapper = memberMapper;
         this.loginHistoryMapper = loginHistoryMapper;
         this.passwordEncoder = passwordEncoder;

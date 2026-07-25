@@ -3,17 +3,22 @@
 <mapper namespace="com.portfolio.board.mapper.MemberMapper">
 
     <resultMap id="memberResultMap" type="com.portfolio.board.vo.MemberVO">
-        <id     property="memberNo"  column="member_no" />
-        <result property="username"  column="username" />
-        <result property="password"  column="password" />
-        <result property="nickname"  column="nickname" />
-        <result property="role"      column="role" />
-        <result property="enabled"   column="enabled" />
-        <result property="createdAt" column="created_at" />
+        <id     property="memberNo"     column="member_no" />
+        <result property="username"     column="username" />
+        <result property="password"     column="password" />
+        <result property="nickname"     column="nickname" />
+        <result property="role"         column="role" />
+        <result property="enabled"      column="enabled" />
+        <result property="profileImage" column="profile_image" />
+        <result property="withdrawn"    column="withdrawn" />
+        <result property="provider"     column="provider" />
+        <result property="providerId"   column="provider_id" />
+        <result property="createdAt"    column="created_at" />
     </resultMap>
 
     <select id="findByUsername" resultMap="memberResultMap">
-        SELECT member_no, username, password, nickname, role, enabled, created_at
+        SELECT member_no, username, password, nickname, role, enabled,
+               profile_image, withdrawn, provider, provider_id, created_at
         FROM member
         WHERE username = #{username}
     </select>
@@ -26,6 +31,27 @@
     <update id="updateEnabled">
         UPDATE member
         SET enabled = #{enabled}
+        WHERE username = #{username}
+    </update>
+
+    <update id="updateProfile">
+        UPDATE member
+        SET nickname = #{nickname},
+            profile_image = #{profileImage}
+        WHERE username = #{username}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE member
+        SET password = #{password}
+        WHERE username = #{username}
+    </update>
+
+    <update id="withdraw">
+        UPDATE member
+        SET withdrawn = 1,
+            withdrawn_at = NOW(),
+            enabled = 0
         WHERE username = #{username}
     </update>
 
